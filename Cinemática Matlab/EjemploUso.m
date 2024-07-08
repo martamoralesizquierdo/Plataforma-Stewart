@@ -15,12 +15,12 @@ disp(P);
 
 % Definir la posición y orientación de la plataforma que queremos obtener
 x = 0;
-y = 0;
-z = 10; % La plataforma está a la altura de los actuadores desde la base
+y = 3;
+z = 2; % La plataforma está a la altura de los actuadores desde la base
 %Tom
 roll = 0;
 pitch = 0;
-yaw = 0;
+yaw = 0.5;
 
 % Calcular las longitudes de los actuadores usando la función de cinemática inversa
 d = stewart_inverse_kinematics1(x, y, z, roll, pitch, yaw, B, P);
@@ -29,5 +29,14 @@ disp(d);
 
 figure
 bar(d,0.4,'b')
-xlabel Patas
-ylabel 'Longitud de las patas'
+xlabel 'Actuador'
+ylabel 'Longitud de los actuadores[cm]'
+% Agregar texto con las longitudes de los actuadores sobre cada barra
+for i = 1:length(d)
+    text(i, d(i), sprintf('%.2f', d(i)),'HorizontalAlignment', 'center', 'VerticalAlignment', 'bottom')
+end
+% Agregar texto con los valores de x, y, z, yaw, pitch y roll en la figura
+text(0.5, max(d)*1.1, sprintf('x = %.2f, y = %.2f, z = %.2f, yaw = %.2f, pitch = %.2f, roll = %.2f', x, y, z, yaw, pitch, roll), ...
+    'HorizontalAlignment', 'center', ...
+    'VerticalAlignment', 'bottom')
+
