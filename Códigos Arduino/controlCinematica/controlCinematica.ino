@@ -15,7 +15,7 @@ const int* pinMotors[Nsensores] = {pinMotorA, pinMotorB, pinMotorC, pinMotorD, p
 
 const int speed = 255; // Velocidad de los motores
 float medida[Nsensores]; // Medidas objetivo en cm, calculadas más adelante
-const float tolerancia = 2.0; // Tolerancia en cm
+const float tolerancia = 1.5; // Tolerancia en cm
 const int iteracionesParaDetener = 5; // Número de iteraciones necesarias dentro de la tolerancia para detener el motor
 
 // Estructura para los datos de los sensores
@@ -65,6 +65,11 @@ void setup() {
 
   stewart_inverse_kinematics(medida, x, y, z, roll, pitch, yaw, B, P);
 
+  // Ajustar las medidas restando 14.5 cm (distancia fuera del sensor)
+  for (int i = 0; i < Nsensores; i++) {
+    medida[i] -= 14.5;
+  }
+
   // Imprimir longitudes objetivo
   Serial.println("Longitudes objetivo de los actuadores:");
   for (int i = 0; i < Nsensores; i++) {
@@ -75,18 +80,6 @@ void setup() {
     Serial.println(" cm");
   }
 
-  // Empezamos desde posición 0:
-  for (int i = 0; i < Nsensores; i++) {
-    moveBackward(pinMotors[i], speed);
-  }
-
-  delay(10000); // Para que de tiempo a llegar abajo
-
-  for (int i = 0; i < Nsensores; i++) {
-    moveForward(pinMotors[i], speed);
-  }
-
-  delay(1000); // Ajustar el tiempo según sea necesario
 }
 
 void loop() {
@@ -116,6 +109,25 @@ void loop() {
       fullStop(pinMotors[i]);
     }
   }
+}
+
+// FUNCIONES PARA CONTROLAR LOS MOTORES
+void moveForward(const int* pinMotor, int speed) {
+  digitalWrite(pinMotor[1], HIGH);
+  digitalWrite(pinMotor[2], LOW);
+  analogWrite(pinMotor[0], speed);
+}
+
+void moveBackward(const int* pinMotor, int speed) {
+  digitalWrite(pinMotor[1], LOW);
+  digitalWrite(pinMotor[2], HIGH);
+  analogWrite(pinMotor[0], speed);
+}
+
+void fullStop(const int* pinMotor) {
+  digitalWrite(pinMotor[1], LOW);
+  digitalWrite(pinMotor[2], LOW);
+  analogWrite(pinMotor[0], 0);
 }
 
 // FUNCIONES PARA CONTROLAR LOS MOTORES
